@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 187 85% 53%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 47% 14%;
+    --secondary-foreground: 210 40% 90%;
+
+    --muted: 222 30% 18%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 222 47% 16%;
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 6%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 210 40% 98%;
+
+    --critical: 0 84% 60%;
+    --high: 25 95% 53%;
+    --medium: 45 93% 47%;
+    --low: 142 71% 45%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 15%;
+    --ring: 187 85% 53%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-primary: 187 85% 53%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 47% 12%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 222 30% 14%;
+    --sidebar-ring: 187 85% 53%;
+
+    --chart-1: 187 85% 53%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 262 83% 58%;
+
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-sans);
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-card/50 backdrop-blur-xl border border-border/50;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .glow-critical {
+    box-shadow: 0 0 15px hsl(var(--critical) / 0.4);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 15px hsl(var(--warning) / 0.3);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-info bg-clip-text text-transparent;
+  }
+
+  .risk-critical {
+    @apply bg-critical/20 text-critical border-critical/30;
+  }
+
+  .risk-high {
+    @apply bg-high/20 text-high border-high/30;
+  }
+
+  .risk-medium {
+    @apply bg-medium/20 text-medium border-medium/30;
+  }
+
+  .risk-low {
+    @apply bg-low/20 text-low border-low/30;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px hsl(var(--primary) / 0.2);
+    }
+    to {
+      box-shadow: 0 0 25px hsl(var(--primary) / 0.4);
+    }
+  }
+}
