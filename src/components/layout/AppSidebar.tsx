@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Activity,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const navigation = [
   { name: "Findings", href: "/findings", icon: AlertTriangle },
   { name: "Policies", href: "/policies", icon: FileCheck },
   { name: "Compliance", href: "/compliance", icon: Scale },
+  { name: "Risk Acceptances", href: "/risk-acceptances", icon: ShieldCheck },
   { name: "Reports", href: "/reports", icon: FileText },
 ];
 

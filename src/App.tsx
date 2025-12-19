@@ -14,6 +14,8 @@ import Policies from "@/pages/Policies";
 import Compliance from "@/pages/Compliance";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
+import Login from "@/pages/Login";
+import RiskAcceptances from "@/pages/RiskAcceptances";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route element={<MainLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/assets" element={<Assets />} />
@@ -34,6 +37,7 @@ const App = () => (
               <Route path="/policies" element={<Policies />} />
               <Route path="/compliance" element={<Compliance />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/risk-acceptances" element={<RiskAcceptances />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
