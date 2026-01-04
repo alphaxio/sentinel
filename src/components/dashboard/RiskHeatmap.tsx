@@ -1,5 +1,17 @@
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { riskHeatmapData } from "@/data/mockData";
+import apiService from "@/services/api";
+import { API_ENDPOINTS } from "@/config/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+
+interface RiskHeatmapData {
+  likelihood: number;
+  impact: number;
+  count: number;
+  risk: string;
+}
 
 const getRiskColor = (risk: string, count: number) => {
   if (count === 0) return "bg-muted/30";
@@ -18,8 +30,50 @@ const getRiskColor = (risk: string, count: number) => {
 };
 
 export function RiskHeatmap() {
+  const [heatmapData, setHeatmapData] = useState<RiskHeatmapData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const impactLabels = ["Very Low", "Low", "Medium", "High", "Very High"];
   const likelihoodLabels = ["Rare", "Unlikely", "Possible", "Likely", "Certain"];
+
+  useEffect(() => {
+    const fetchHeatmapData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiService.get<RiskHeatmapData[]>(API_ENDPOINTS.threats.riskHeatmap);
+        setHeatmapData(data);
+      } catch (err: any) {
+        setError(err.message || "Failed to load risk heatmap data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHeatmapData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 rounded-xl bg-card border border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Risk Heatmap</h3>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 rounded-xl bg-card border border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Risk Heatmap</h3>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 rounded-xl bg-card border border-border">
@@ -38,7 +92,7 @@ export function RiskHeatmap() {
           <div className="grid grid-cols-5 gap-1 mb-2">
             {[5, 4, 3, 2, 1].map((likelihood) =>
               [1, 2, 3, 4, 5].map((impact) => {
-                const cell = riskHeatmapData.find(
+                const cell = heatmapData.find(
                   (d) => d.likelihood === likelihood && d.impact === impact
                 );
                 return (

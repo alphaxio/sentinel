@@ -75,28 +75,52 @@ class ApiService {
 
   // Generic methods
   async get<T>(url: string, config?: any): Promise<T> {
-    const response = await this.client.get<ApiResponse<T>>(url, config);
-    return response.data.data;
+    const response = await this.client.get<T | ApiResponse<T>>(url, config);
+    // Handle both direct responses and wrapped responses
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return (response.data as ApiResponse<T>).data;
+    }
+    return response.data as T;
   }
 
   async post<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await this.client.post<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    const response = await this.client.post<T | ApiResponse<T>>(url, data, config);
+    // Handle both direct responses and wrapped responses
+    // For FormData (file uploads), don't unwrap
+    if (data instanceof FormData) {
+      return response.data as T;
+    }
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return (response.data as ApiResponse<T>).data;
+    }
+    return response.data as T;
   }
 
   async patch<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await this.client.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    const response = await this.client.patch<T | ApiResponse<T>>(url, data, config);
+    // Handle both direct responses and wrapped responses
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return (response.data as ApiResponse<T>).data;
+    }
+    return response.data as T;
   }
 
   async delete<T>(url: string, config?: any): Promise<T> {
-    const response = await this.client.delete<ApiResponse<T>>(url, config);
-    return response.data.data;
+    const response = await this.client.delete<T | ApiResponse<T>>(url, config);
+    // Handle both direct responses and wrapped responses
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return (response.data as ApiResponse<T>).data;
+    }
+    return response.data as T;
   }
 
   async getPaginated<T>(url: string, params?: any): Promise<PaginatedResponse<T>> {
-    const response = await this.client.get<ApiResponse<PaginatedResponse<T>>>(url, { params });
-    return response.data.data;
+    const response = await this.client.get<PaginatedResponse<T> | ApiResponse<PaginatedResponse<T>>>(url, { params });
+    // Handle both direct responses and wrapped responses
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return (response.data as ApiResponse<PaginatedResponse<T>>).data;
+    }
+    return response.data as PaginatedResponse<T>;
   }
 }
 

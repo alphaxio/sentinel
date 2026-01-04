@@ -52,5 +52,15 @@ class AssetRelationshipResponse(BaseModel):
     source_asset_id: UUID
     target_asset_id: UUID
     relationship_type: str
+    source_asset: Optional[dict] = None
+    target_asset: Optional[dict] = None
 
     model_config = {"from_attributes": True}
+
+
+class BulkImportResponse(BaseModel):
+    """Response for bulk import operation"""
+    total: int
+    created: int
+    updated: int
+    errors: List[str]

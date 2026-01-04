@@ -49,10 +49,14 @@ class PolicyRule(Base):
 
     policy_rule_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, unique=True, nullable=False)
+    description = Column(Text, nullable=True)
     severity = Column(SQLEnum(PolicySeverity), nullable=False)
     rego_snippet = Column(Text, nullable=True)
     active = Column(Boolean, default=True)
     version = Column(Integer, default=1)
+    last_evaluated = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
     control_mappings = relationship("PolicyControlMapping", back_populates="policy_rule")

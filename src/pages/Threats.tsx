@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { mockThreats } from "@/data/mockData";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchThreats } from "@/store/slices/threatsSlice";
 import { cn } from "@/lib/utils";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Plus, Filter, AlertTriangle, ArrowUpDown } from "lucide-react";
+import { Search, Plus, Filter, AlertTriangle, ArrowUpDown, Loader2, AlertCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ThreatForm } from "@/components/threats/ThreatForm";
 
 const getRiskBadgeClass = (riskScore: number) => {
   if (riskScore >= 80) return "risk-critical";
@@ -37,20 +43,33 @@ const getRiskLabel = (riskScore: number) => {
 };
 
 export default function Threats() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { items: threats, loading, error } = useAppSelector((state) => state.threats);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"risk" | "date">("risk");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const filteredThreats = mockThreats
-    .filter((threat) => {
-      const matchesSearch = threat.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === "all" || threat.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  useEffect(() => {
+    dispatch(
+      fetchThreats({
+        search: debouncedSearch || undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
+        page: 1,
+        pageSize: 50,
+      })
+    );
+  }, [dispatch, debouncedSearch, statusFilter]);
+
+  const filteredThreats = useMemo(() => {
+    return [...threats].sort((a, b) => {
       if (sortBy === "risk") return b.riskScore - a.riskScore;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
+  }, [threats, sortBy]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -60,7 +79,10 @@ export default function Threats() {
           <h1 className="text-2xl font-bold text-foreground">Threat Register</h1>
           <p className="text-muted-foreground">Track and manage identified threats</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Threat
         </Button>
@@ -69,10 +91,10 @@ export default function Threats() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Identified", count: 8, color: "text-info" },
-          { label: "Analyzing", count: 5, color: "text-warning" },
-          { label: "Mitigating", count: 7, color: "text-primary" },
-          { label: "Monitoring", count: 3, color: "text-success" },
+          { label: "Identified", count: threats.filter((t) => t.status === "Identified").length, color: "text-info" },
+          { label: "Analyzing", count: threats.filter((t) => t.status === "Analyzing").length, color: "text-warning" },
+          { label: "Mitigating", count: threats.filter((t) => t.status === "Mitigating").length, color: "text-primary" },
+          { label: "Monitoring", count: threats.filter((t) => t.status === "Monitoring").length, color: "text-success" },
         ].map((stat) => (
           <div key={stat.label} className="p-4 rounded-xl bg-card border border-border">
             <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
@@ -118,8 +140,33 @@ export default function Threats() {
         </Select>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filteredThreats.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No threats found</p>
+        </div>
+      )}
+
       {/* Threats Table */}
-      <div className="rounded-xl border border-border overflow-hidden">
+      {!loading && !error && filteredThreats.length > 0 && (
+        <div className="rounded-xl border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -135,7 +182,11 @@ export default function Threats() {
           </TableHeader>
           <TableBody>
             {filteredThreats.map((threat) => (
-              <TableRow key={threat.id} className="cursor-pointer hover:bg-muted/30">
+              <TableRow
+                key={threat.id}
+                className="cursor-pointer hover:bg-muted/30"
+                onClick={() => navigate(`/threats/${threat.id}`)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center">
@@ -200,6 +251,17 @@ export default function Threats() {
           </TableBody>
         </Table>
       </div>
+      )}
+
+      {/* Add Threat Dialog */}
+      <ThreatForm
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSuccess={() => {
+          setIsAddDialogOpen(false);
+          dispatch(fetchThreats({ page: 1, pageSize: 50 }));
+        }}
+      />
     </div>
   );
 }

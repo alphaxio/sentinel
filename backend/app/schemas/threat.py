@@ -36,6 +36,7 @@ class ThreatResponse(ThreatBase):
     status: ThreatStatus
     auto_generated: bool
     created_at: datetime
+    asset_name: Optional[str] = None  # Will be populated from relationship
 
     model_config = {"from_attributes": True}
 
@@ -43,3 +44,31 @@ class ThreatResponse(ThreatBase):
 class ThreatTransition(BaseModel):
     to_state: ThreatStatus
     comment: Optional[str] = None
+
+
+# Threat Model Diagram Schemas
+class ThreatModelDiagramBase(BaseModel):
+    name: str = Field(..., max_length=255)
+    description: Optional[str] = None
+    threat_id: Optional[UUID] = None
+
+
+class ThreatModelDiagramCreate(ThreatModelDiagramBase):
+    canvas_data: dict  # JSON structure with nodes and links
+
+
+class ThreatModelDiagramUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=255)
+    description: Optional[str] = None
+    canvas_data: Optional[dict] = None
+
+
+class ThreatModelDiagramResponse(ThreatModelDiagramBase):
+    diagram_id: UUID
+    canvas_data: dict
+    created_by: UUID
+    created_at: datetime
+    updated_at: datetime
+    creator_name: Optional[str] = None  # Will be populated from relationship
+
+    model_config = {"from_attributes": True}

@@ -1,6 +1,11 @@
-import { useState } from "react";
-import { mockAssets, Asset } from "@/data/mockData";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchAssets } from "@/store/slices/assetsSlice";
+import { AssetForm } from "@/components/assets/AssetForm";
+import { BulkImportDialog } from "@/components/assets/BulkImportDialog";
 import { cn } from "@/lib/utils";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,6 +39,7 @@ import {
   Network,
   LayoutGrid,
   List,
+  Upload,
 } from "lucide-react";
 
 const getTypeIcon = (type: string) => {
@@ -68,15 +77,33 @@ const getSensitivityColor = (score: number) => {
 };
 
 export default function Assets() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { items: assets, loading, error } = useAppSelector((state) => state.assets);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
 
-  const filteredAssets = mockAssets.filter((asset) => {
-    const matchesSearch = asset.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === "all" || asset.type === typeFilter;
-    return matchesSearch && matchesType;
-  });
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  useEffect(() => {
+    dispatch(
+      fetchAssets({
+        search: debouncedSearch || undefined,
+        page: 1,
+        pageSize: 50,
+      })
+    );
+  }, [dispatch, debouncedSearch]);
+
+  const filteredAssets = useMemo(() => {
+    return assets.filter((asset) => {
+      const matchesType = typeFilter === "all" || asset.type === typeFilter;
+      return matchesType;
+    });
+  }, [assets, typeFilter]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -86,10 +113,22 @@ export default function Assets() {
           <h1 className="text-2xl font-bold text-foreground">Asset Inventory</h1>
           <p className="text-muted-foreground">Manage and monitor your organizational assets</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Asset
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsBulkImportOpen(true)}
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Bulk Import
+          </Button>
+          <Button
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Asset
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -138,8 +177,32 @@ export default function Assets() {
         </div>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filteredAssets.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No assets found</p>
+        </div>
+      )}
+
       {/* Table View */}
-      {viewMode === "table" && (
+      {!loading && !error && viewMode === "table" && filteredAssets.length > 0 && (
         <div className="rounded-xl border border-border overflow-hidden">
           <Table>
             <TableHeader>
@@ -156,7 +219,11 @@ export default function Assets() {
             </TableHeader>
             <TableBody>
               {filteredAssets.map((asset) => (
-                <TableRow key={asset.id} className="cursor-pointer hover:bg-muted/30">
+                <TableRow
+                  key={asset.id}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => navigate(`/assets/${asset.id}`)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -208,12 +275,13 @@ export default function Assets() {
       )}
 
       {/* Grid View */}
-      {viewMode === "grid" && (
+      {!loading && !error && viewMode === "grid" && filteredAssets.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAssets.map((asset) => (
             <div
               key={asset.id}
               className="p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all cursor-pointer"
+              onClick={() => navigate(`/assets/${asset.id}`)}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -241,6 +309,22 @@ export default function Assets() {
           ))}
         </div>
       )}
+
+      {/* Add Asset Dialog */}
+      <AssetForm
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSuccess={() => {
+          setIsAddDialogOpen(false);
+          dispatch(fetchAssets({ page: 1, pageSize: 50 }));
+        }}
+      />
+
+      {/* Bulk Import Dialog */}
+      <BulkImportDialog
+        open={isBulkImportOpen}
+        onOpenChange={setIsBulkImportOpen}
+      />
     </div>
   );
 }

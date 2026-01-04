@@ -24,13 +24,38 @@ const initialState: AuthState = {
 // Async thunks
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials: { email: string; password: string }) => {
-    const response = await apiService.post<{ token: string; user: User }>(
+  async (credentials: { email: string; password: string }, { dispatch }) => {
+    // Backend returns: { access_token, token_type }
+    const tokenResponse = await apiService.post<{ access_token: string; token_type: string }>(
       API_ENDPOINTS.auth.login,
       credentials
     );
-    apiService.setAuthToken(response.token);
-    return response;
+    
+    // Store the token
+    apiService.setAuthToken(tokenResponse.access_token);
+    
+    // Fetch user info - backend returns: { user_id, email, full_name, role, permissions }
+    const userResponse = await apiService.get<{
+      user_id: string;
+      email: string;
+      full_name: string;
+      role: string;
+      permissions: string[];
+    }>(API_ENDPOINTS.auth.me);
+    
+    // Map backend response to frontend User type
+    const user: User = {
+      id: userResponse.user_id,
+      email: userResponse.email,
+      fullName: userResponse.full_name,
+      role: userResponse.role as User['role'],
+      permissions: userResponse.permissions
+    };
+    
+    return {
+      token: tokenResponse.access_token,
+      user: user
+    };
   }
 );
 
@@ -45,8 +70,60 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 });
 
 export const fetchCurrentUser = createAsyncThunk('auth/fetchCurrentUser', async () => {
-  return apiService.get<User>(API_ENDPOINTS.auth.me);
+  const userResponse = await apiService.get<{
+    user_id: string;
+    email: string;
+    full_name: string;
+    role: string;
+    permissions: string[];
+  }>(API_ENDPOINTS.auth.me);
+  
+  // Map backend response to frontend User type
+  return {
+    id: userResponse.user_id,
+    email: userResponse.email,
+    fullName: userResponse.full_name,
+    role: userResponse.role as User['role'],
+    permissions: userResponse.permissions
+  } as User;
 });
+
+export const oauth2Login = createAsyncThunk(
+  'auth/oauth2Login',
+  async (code: string, { dispatch }) => {
+    // Exchange OAuth2 code for token
+    const tokenResponse = await apiService.post<{ access_token: string; token_type: string }>(
+      API_ENDPOINTS.auth.oauth2Callback,
+      { code }
+    );
+    
+    // Store the token
+    apiService.setAuthToken(tokenResponse.access_token);
+    
+    // Fetch user info
+    const userResponse = await apiService.get<{
+      user_id: string;
+      email: string;
+      full_name: string;
+      role: string;
+      permissions: string[];
+    }>(API_ENDPOINTS.auth.me);
+    
+    // Map backend response to frontend User type
+    const user: User = {
+      id: userResponse.user_id,
+      email: userResponse.email,
+      fullName: userResponse.full_name,
+      role: userResponse.role as User['role'],
+      permissions: userResponse.permissions
+    };
+    
+    return {
+      token: tokenResponse.access_token,
+      user: user
+    };
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -93,6 +170,21 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;
         state.isAuthenticated = true;
+      })
+      // OAuth2 Login
+      .addCase(oauth2Login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(oauth2Login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(oauth2Login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'OAuth2 login failed';
       });
   },
 });

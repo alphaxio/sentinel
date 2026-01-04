@@ -17,20 +17,98 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create ENUM types
-    op.execute("CREATE TYPE assettype AS ENUM ('Application', 'Microservice', 'Database', 'Container', 'Infrastructure', 'Server', 'Network', 'Cloud')")
-    op.execute("CREATE TYPE classificationlevel AS ENUM ('Public', 'Internal', 'Confidential', 'Restricted')")
-    op.execute("CREATE TYPE relationshiptype AS ENUM ('depends_on', 'communicates_with', 'processes_data_from')")
-    op.execute("CREATE TYPE stridecategory AS ENUM ('Spoofing', 'Tampering', 'Repudiation', 'Info_Disclosure', 'DoS', 'Elevation')")
-    op.execute("CREATE TYPE threatstatus AS ENUM ('Identified', 'Assessed', 'Verified', 'Evaluated', 'Planning', 'Mitigated', 'Accepted', 'Monitoring')")
-    op.execute("CREATE TYPE scannertype AS ENUM ('SAST', 'DAST', 'SCA', 'IaC')")
-    op.execute("CREATE TYPE processingstatus AS ENUM ('Pending', 'Processing', 'Completed', 'Failed')")
-    op.execute("CREATE TYPE findingseverity AS ENUM ('Critical', 'High', 'Medium', 'Low', 'Info')")
-    op.execute("CREATE TYPE findingstatus AS ENUM ('Open', 'In_Progress', 'Remediated', 'False_Positive', 'Accepted')")
-    op.execute("CREATE TYPE complianceframework AS ENUM ('NIST_800_53', 'ISO_27001', 'PCI_DSS', 'HIPAA', 'GDPR')")
-    op.execute("CREATE TYPE policyseverity AS ENUM ('Info', 'Low', 'Medium', 'High', 'Critical')")
-    op.execute("CREATE TYPE gatedecision AS ENUM ('Pass', 'Warn', 'Block')")
-    op.execute("CREATE TYPE riskacceptancestatus AS ENUM ('Pending', 'Approved', 'Rejected', 'Expired')")
+    # Create ENUM types (only if they don't exist)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE assettype AS ENUM ('Application', 'Microservice', 'Database', 'Container', 'Infrastructure', 'Server', 'Network', 'Cloud');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE classificationlevel AS ENUM ('Public', 'Internal', 'Confidential', 'Restricted');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE relationshiptype AS ENUM ('depends_on', 'communicates_with', 'processes_data_from');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE stridecategory AS ENUM ('Spoofing', 'Tampering', 'Repudiation', 'Info_Disclosure', 'DoS', 'Elevation');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE threatstatus AS ENUM ('Identified', 'Assessed', 'Verified', 'Evaluated', 'Planning', 'Mitigated', 'Accepted', 'Monitoring');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE scannertype AS ENUM ('SAST', 'DAST', 'SCA', 'IaC');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE processingstatus AS ENUM ('Pending', 'Processing', 'Completed', 'Failed');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE findingseverity AS ENUM ('Critical', 'High', 'Medium', 'Low', 'Info');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE findingstatus AS ENUM ('Open', 'In_Progress', 'Remediated', 'False_Positive', 'Accepted');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE complianceframework AS ENUM ('NIST_800_53', 'ISO_27001', 'PCI_DSS', 'HIPAA', 'GDPR');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE policyseverity AS ENUM ('Info', 'Low', 'Medium', 'High', 'Critical');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE gatedecision AS ENUM ('Pass', 'Warn', 'Block');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE riskacceptancestatus AS ENUM ('Pending', 'Approved', 'Rejected', 'Expired');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
+    """)
 
     # Create roles table
     op.create_table(

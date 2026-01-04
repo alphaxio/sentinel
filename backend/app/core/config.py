@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     APP_NAME: str = "Sentinel IRM Platform"
     DEBUG: bool = False
     
-    # Database
-    DATABASE_URL: str = "postgresql://sentinel_user:sentinel_pass@localhost:5432/sentinel_db"
+    # Database (using local PostgreSQL via DBngin - default user is usually 'postgres')
+    DATABASE_URL: str = "postgresql://postgres@localhost:5432/sentinel"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -27,11 +27,15 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 8
     
-    # OAuth2
+    # OAuth2/OIDC
     OAUTH2_CLIENT_ID: str = ""
     OAUTH2_CLIENT_SECRET: str = ""
     OAUTH2_AUTHORIZATION_URL: str = ""
     OAUTH2_TOKEN_URL: str = ""
+    OAUTH2_USERINFO_URL: str = ""  # OIDC userinfo endpoint
+    OAUTH2_REDIRECT_URI: str = "http://localhost:8080/auth/callback"
+    OAUTH2_SCOPE: str = "openid profile email"
+    OAUTH2_ENABLED: bool = False  # Enable OAuth2 when credentials are configured
     
     # AWS (for S3 reports)
     AWS_ACCESS_KEY_ID: str = ""

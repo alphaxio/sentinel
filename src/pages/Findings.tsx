@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { mockFindings } from "@/data/mockData";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchFindings } from "@/store/slices/findingsSlice";
 import { cn } from "@/lib/utils";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, AlertCircle, ExternalLink, Calendar } from "lucide-react";
+import { Search, Filter, AlertCircle, ExternalLink, Calendar, Loader2, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FindingForm } from "@/components/findings/FindingForm";
 
 const getSourceBadge = (source: string) => {
   const colors: Record<string, string> = {
@@ -36,23 +42,42 @@ const getSourceBadge = (source: string) => {
 };
 
 export default function Findings() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { items: findings, loading, error } = useAppSelector((state) => state.findings);
   const [searchQuery, setSearchQuery] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const filteredFindings = mockFindings.filter((finding) => {
-    const matchesSearch = finding.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSeverity = severityFilter === "all" || finding.severity === severityFilter;
-    const matchesSource = sourceFilter === "all" || finding.source === sourceFilter;
-    return matchesSearch && matchesSeverity && matchesSource;
-  });
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const severityCounts = {
-    Critical: mockFindings.filter((f) => f.severity === "Critical").length,
-    High: mockFindings.filter((f) => f.severity === "High").length,
-    Medium: mockFindings.filter((f) => f.severity === "Medium").length,
-    Low: mockFindings.filter((f) => f.severity === "Low").length,
-  };
+  useEffect(() => {
+    dispatch(
+      fetchFindings({
+        search: debouncedSearch || undefined,
+        severity: severityFilter !== "all" ? severityFilter : undefined,
+        page: 1,
+        pageSize: 50,
+      })
+    );
+  }, [dispatch, debouncedSearch, severityFilter]);
+
+  const filteredFindings = useMemo(() => {
+    return findings.filter((finding) => {
+      const matchesSource = sourceFilter === "all" || finding.source === sourceFilter;
+      return matchesSource;
+    });
+  }, [findings, sourceFilter]);
+
+  const severityCounts = useMemo(() => {
+    return {
+      Critical: findings.filter((f) => f.severity === "Critical").length,
+      High: findings.filter((f) => f.severity === "High").length,
+      Medium: findings.filter((f) => f.severity === "Medium").length,
+      Low: findings.filter((f) => f.severity === "Low").length,
+    };
+  }, [findings]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -62,6 +87,13 @@ export default function Findings() {
           <h1 className="text-2xl font-bold text-foreground">Security Findings</h1>
           <p className="text-muted-foreground">Vulnerabilities and issues from security scans</p>
         </div>
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Finding
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -135,8 +167,33 @@ export default function Findings() {
         </Select>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filteredFindings.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No findings found</p>
+        </div>
+      )}
+
       {/* Findings Table */}
-      <div className="rounded-xl border border-border overflow-hidden">
+      {!loading && !error && filteredFindings.length > 0 && (
+        <div className="rounded-xl border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
@@ -151,7 +208,11 @@ export default function Findings() {
           </TableHeader>
           <TableBody>
             {filteredFindings.map((finding) => (
-              <TableRow key={finding.id} className="cursor-pointer hover:bg-muted/30">
+              <TableRow
+                key={finding.id}
+                className="cursor-pointer hover:bg-muted/30"
+                onClick={() => navigate(`/findings/${finding.id}`)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center">
@@ -198,6 +259,17 @@ export default function Findings() {
           </TableBody>
         </Table>
       </div>
+      )}
+
+      {/* Add Finding Dialog */}
+      <FindingForm
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSuccess={() => {
+          setIsAddDialogOpen(false);
+          dispatch(fetchFindings({ page: 1, pageSize: 50 }));
+        }}
+      />
     </div>
   );
 }

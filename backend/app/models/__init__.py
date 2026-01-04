@@ -3,7 +3,7 @@ Database Models
 """
 from app.models.user import User, Role
 from app.models.asset import Asset, AssetRelationship
-from app.models.threat import Threat, ThreatStateHistory
+from app.models.threat import Threat, ThreatStateHistory, ThreatModelDiagram
 from app.models.finding import Finding, ScanResult
 from app.models.policy import PolicyRule, PolicyControlMapping, Control, PolicyViolation
 from app.models.risk import RiskAcceptance
@@ -16,6 +16,7 @@ __all__ = [
     "AssetRelationship",
     "Threat",
     "ThreatStateHistory",
+    "ThreatModelDiagram",
     "Finding",
     "ScanResult",
     "PolicyRule",

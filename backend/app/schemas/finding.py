@@ -35,5 +35,6 @@ class FindingResponse(FindingBase):
     scanner_sources: Optional[List[str]]
     first_detected: datetime
     remediated_at: Optional[datetime] = None
+    asset_name: Optional[str] = None  # Will be populated from relationship
 
     model_config = {"from_attributes": True}

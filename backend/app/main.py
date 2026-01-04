@@ -23,9 +23,14 @@ app.add_middleware(
 )
 
 # Include routers
-from app.api.v1.endpoints import assets
+from app.api.v1.endpoints import assets, auth, threats, findings, risk_acceptances, policies
 
+app.include_router(auth.router, prefix="/v1/auth", tags=["Authentication"])
 app.include_router(assets.router, prefix="/v1/assets", tags=["Assets"])
+app.include_router(threats.router, prefix="/v1/threats", tags=["Threats"])
+app.include_router(findings.router, prefix="/v1/findings", tags=["Findings"])
+app.include_router(risk_acceptances.router, prefix="/v1/risk-acceptances", tags=["Risk Acceptances"])
+app.include_router(policies.router, prefix="/v1/policies", tags=["Policies"])
 
 
 @app.get("/")

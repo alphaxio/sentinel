@@ -1,8 +1,8 @@
 """
 Threat Models
 """
-from sqlalchemy import Column, String, Integer, Numeric, DateTime, ForeignKey, Boolean, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Integer, Numeric, DateTime, ForeignKey, Boolean, Enum as SQLEnum, Text, JSON
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -65,6 +65,24 @@ class ThreatStateHistory(Base):
     # Relationships
     threat = relationship("Threat", back_populates="state_history")
     user = relationship("User", foreign_keys=[changed_by])
+
+
+class ThreatModelDiagram(Base):
+    __tablename__ = "threat_model_diagrams"
+
+    diagram_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    threat_id = Column(UUID(as_uuid=True), ForeignKey("threats.threat_id"), nullable=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    # Store the entire canvas state as JSON
+    canvas_data = Column(JSONB, nullable=False)  # Contains nodes, links, positions, etc.
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    threat = relationship("Threat", foreign_keys=[threat_id])
+    creator = relationship("User", foreign_keys=[created_by])
 
 
 

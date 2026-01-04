@@ -1,4 +1,5 @@
-import { Bell, Search, User } from "lucide-react";
+import { Bell, Search, User, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,8 +11,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
 
 export function Header() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      navigate("/login");
+    } catch (error) {
+      // Even if API call fails, clear local state and redirect
+      navigate("/login");
+    }
+  };
+
+  // Get role display name
+  const getRoleDisplayName = (role: string) => {
+    const roleMap: Record<string, string> = {
+      Security_Architect: "Security Team",
+      Compliance_Officer: "Compliance Team",
+      Developer: "Development Team",
+      Executive: "Executive Team",
+    };
+    return roleMap[role] || role;
+  };
   return (
     <header className="flex items-center justify-between h-16 px-6 bg-card/50 border-b border-border backdrop-blur-sm">
       {/* Search */}
@@ -70,18 +97,35 @@ export function Header() {
                 <User className="w-4 h-4 text-primary" />
               </div>
               <div className="flex flex-col items-start">
-                <span className="text-sm font-medium">Admin User</span>
-                <span className="text-xs text-muted-foreground">Security Team</span>
+                <span className="text-sm font-medium">
+                  {user?.fullName || "User"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {user ? getRoleDisplayName(user.role) : "Loading..."}
+                </span>
               </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <div className="flex flex-col">
+                <span>{user?.fullName || "User"}</span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {user?.email || ""}
+                </span>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Preferences</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Logout</DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-destructive cursor-pointer"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

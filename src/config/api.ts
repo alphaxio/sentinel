@@ -13,6 +13,9 @@ export const API_ENDPOINTS = {
     logout: '/auth/logout',
     me: '/auth/me',
     refresh: '/auth/refresh',
+    oauth2Config: '/auth/oauth2/config',
+    oauth2Authorize: '/auth/oauth2/authorize',
+    oauth2Callback: '/auth/oauth2/callback',
   },
   // Assets
   assets: {
@@ -32,15 +35,28 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/threats/${id}`,
     create: '/threats',
     update: (id: string) => `/threats/${id}`,
+    delete: (id: string) => `/threats/${id}`,
     transition: (id: string) => `/threats/${id}/transition`,
     history: (id: string) => `/threats/${id}/history`,
+    riskHeatmap: '/threats/analytics/risk-heatmap',
     register: '/threats/register',
+    diagrams: {
+      list: '/threats/diagrams',
+      detail: (id: string) => `/threats/diagrams/${id}`,
+      create: '/threats/diagrams',
+      update: (id: string) => `/threats/diagrams/${id}`,
+      delete: (id: string) => `/threats/diagrams/${id}`,
+    },
   },
   // Findings
   findings: {
     list: '/findings',
     detail: (id: string) => `/findings/${id}`,
+    create: '/findings',
     update: (id: string) => `/findings/${id}`,
+    delete: (id: string) => `/findings/${id}`,
+    byAsset: (assetId: string) => `/findings/asset/${assetId}`,
+    byThreat: (threatId: string) => `/findings/threat/${threatId}`,
   },
   // Policies
   policies: {
@@ -48,7 +64,9 @@ export const API_ENDPOINTS = {
     detail: (id: string) => `/policies/${id}`,
     create: '/policies',
     update: (id: string) => `/policies/${id}`,
+    delete: (id: string) => `/policies/${id}`,
     test: (id: string) => `/policies/${id}/test`,
+    violations: (id: string) => `/policies/${id}/violations`,
   },
   // Compliance
   compliance: {
@@ -62,7 +80,10 @@ export const API_ENDPOINTS = {
   // Risk Acceptances
   riskAcceptances: {
     list: '/risk-acceptances',
+    detail: (id: string) => `/risk-acceptances/${id}`,
     create: '/risk-acceptances',
+    update: (id: string) => `/risk-acceptances/${id}`,
+    delete: (id: string) => `/risk-acceptances/${id}`,
     approve: (id: string) => `/risk-acceptances/${id}/approve`,
     reject: (id: string) => `/risk-acceptances/${id}/reject`,
   },
