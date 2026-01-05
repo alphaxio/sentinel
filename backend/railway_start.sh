@@ -33,14 +33,59 @@ echo ""
 echo "=========================================="
 echo "Running database migrations..."
 echo "=========================================="
-set -e  # Now enable exit on error for migrations
+
+# Check if we need to clean up orphaned enum types
+echo "Checking for orphaned database objects..."
+python3 << 'PYTHON_SCRIPT'
+import sys
+sys.path.insert(0, '/app')
+from app.core.database import engine
+from sqlalchemy import text
+
+try:
+    with engine.connect() as conn:
+        # Check if alembic_version table exists
+        result = conn.execute(text("""
+            SELECT COUNT(*) FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'alembic_version'
+        """))
+        has_version_table = result.scalar() > 0
+        
+        # Check if enum types exist
+        result = conn.execute(text("""
+            SELECT typname FROM pg_type 
+            WHERE typname IN ('assettype', 'classificationlevel', 'stridecategory', 'threatstatus')
+            AND typtype = 'e'
+        """))
+        existing_enums = [row[0] for row in result.fetchall()]
+        
+        if existing_enums and not has_version_table:
+            print(f"Found orphaned enum types: {existing_enums}")
+            print("Dropping them to allow clean migration...")
+            for enum_name in existing_enums:
+                try:
+                    conn.execute(text(f"DROP TYPE IF EXISTS {enum_name} CASCADE"))
+                    conn.commit()
+                    print(f"  ✓ Dropped {enum_name}")
+                except Exception as e:
+                    print(f"  ✗ Failed to drop {enum_name}: {e}")
+            print("✓ Cleanup complete")
+        elif has_version_table:
+            print("Alembic version table exists, proceeding with normal migration")
+        else:
+            print("Database is clean, proceeding with normal migration")
+except Exception as e:
+    print(f"Error during cleanup check: {e}")
+    # Continue anyway
+PYTHON_SCRIPT
+
+set -e  # Enable exit on error for migrations
 if alembic upgrade head; then
     echo "✓ Migrations completed successfully"
 else
     echo "✗ Migration failed!"
-    echo "Attempting to show migration status..."
+    echo "Migration status:"
     alembic current || true
-    alembic history || true
     exit 1
 fi
 
