@@ -43,8 +43,24 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET: str = "sentinel-reports"
     AWS_REGION: str = "us-east-1"
     
-    # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+    # CORS - Allow environment variable or default
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8080"
+    
+    # Server
+    PORT: int = 8000
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS_ORIGINS from comma-separated string or JSON array"""
+        import json
+        import os
+        cors_env = os.getenv("CORS_ORIGINS", self.CORS_ORIGINS)
+        try:
+            # Try parsing as JSON array
+            return json.loads(cors_env)
+        except (json.JSONDecodeError, TypeError):
+            # Fall back to comma-separated string
+            return [origin.strip() for origin in cors_env.split(",") if origin.strip()]
     
     model_config = {
         "env_file": ".env",
