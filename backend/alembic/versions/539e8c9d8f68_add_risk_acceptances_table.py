@@ -22,11 +22,16 @@ def upgrade() -> None:
     # if not res.first():
     #     risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
     #     risk_status.create(op.get_bind())
-    op.execute(text("DROP TYPE IF EXISTS riskacceptancestatus CASCADE"))
+    # op.execute(text("DROP TYPE IF EXISTS riskacceptancestatus CASCADE"))
     
-    # 2. Create the enum type manually
-    risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
-    risk_status.create(op.get_bind())
+    # # 2. Create the enum type manually
+    # risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
+    # risk_status.create(op.get_bind())
+
+    status_enum = sa.Enum(
+        'Pending', 'Approved', 'Rejected', 'Expired',
+        name='riskacceptancestatus'
+    )
     # Create risk_acceptances table
     op.create_table(
         'risk_acceptances',
@@ -37,7 +42,13 @@ def upgrade() -> None:
         sa.Column('justification', sa.Text(), nullable=False),
         sa.Column('acceptance_period_days', sa.Integer(), nullable=False),
         sa.Column('expiration_date', sa.Date(), nullable=False),
-        sa.Column('status', sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus', create_type=False), nullable=False, server_default='Pending'),
+        sa.Column(
+            'status',
+            status_enum,
+            nullable=False,
+            server_default='Pending'
+        ),
+        # sa.Column('status', sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus', create_type=False), nullable=False, server_default='Pending'),
         sa.Column('approval_signature_name', sa.String(), nullable=True),
         sa.Column('approval_signature_timestamp', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
