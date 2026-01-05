@@ -17,6 +17,10 @@ depends_on = None
 
 
 def upgrade() -> None:
+    res = op.get_bind().execute(text("SELECT 1 FROM pg_type WHERE typname = 'riskacceptancestatus'"))
+    if not res.first():
+        risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
+        risk_status.create(op.get_bind())
     # Create risk_acceptances table
     op.create_table(
         'risk_acceptances',
@@ -27,7 +31,7 @@ def upgrade() -> None:
         sa.Column('justification', sa.Text(), nullable=False),
         sa.Column('acceptance_period_days', sa.Integer(), nullable=False),
         sa.Column('expiration_date', sa.Date(), nullable=False),
-        sa.Column('status', sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus'), nullable=False, server_default='Pending'),
+        sa.Column('status', sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus'), nullable=False, create_type=False, server_default='Pending'),
         sa.Column('approval_signature_name', sa.String(), nullable=True),
         sa.Column('approval_signature_timestamp', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
