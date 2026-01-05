@@ -34,49 +34,62 @@ echo "=========================================="
 echo "Running database migrations..."
 echo "=========================================="
 
-# Check if we need to clean up orphaned enum types
-echo "Checking for orphaned database objects..."
+# Clean up any existing enum types that might conflict
+echo "Cleaning up any existing enum types..."
 python3 << 'PYTHON_SCRIPT'
 import sys
+import os
 sys.path.insert(0, '/app')
 from app.core.database import engine
 from sqlalchemy import text
 
+# List of all enum types used in migrations
+ALL_ENUMS = [
+    'assettype', 'classificationlevel', 'stridecategory', 'threatstatus',
+    'scannertype', 'processingstatus', 'findingseverity', 'findingstatus',
+    'complianceframework', 'policyseverity', 'gatedecision', 'riskacceptancestatus',
+    'relationshiptype'
+]
+
 try:
-    with engine.connect() as conn:
-        # Check if alembic_version table exists
+    with engine.begin() as conn:
+        # Check if alembic_version exists
         result = conn.execute(text("""
             SELECT COUNT(*) FROM information_schema.tables 
             WHERE table_schema = 'public' AND table_name = 'alembic_version'
         """))
         has_version_table = result.scalar() > 0
         
-        # Check if enum types exist
+        # Check which enum types actually exist
         result = conn.execute(text("""
             SELECT typname FROM pg_type 
-            WHERE typname IN ('assettype', 'classificationlevel', 'stridecategory', 'threatstatus')
-            AND typtype = 'e'
+            WHERE typtype = 'e' 
+            AND typname = ANY(ARRAY['assettype', 'classificationlevel', 'stridecategory', 
+                'threatstatus', 'scannertype', 'processingstatus', 'findingseverity', 
+                'findingstatus', 'complianceframework', 'policyseverity', 'gatedecision', 
+                'riskacceptancestatus', 'relationshiptype'])
         """))
         existing_enums = [row[0] for row in result.fetchall()]
         
-        if existing_enums and not has_version_table:
-            print(f"Found orphaned enum types: {existing_enums}")
+        # If no alembic_version table, drop all enum types (migration will recreate them)
+        if not has_version_table and existing_enums:
+            print(f"No alembic_version table found. Found {len(existing_enums)} enum type(s): {existing_enums}")
             print("Dropping them to allow clean migration...")
             for enum_name in existing_enums:
                 try:
                     conn.execute(text(f"DROP TYPE IF EXISTS {enum_name} CASCADE"))
-                    conn.commit()
                     print(f"  ✓ Dropped {enum_name}")
                 except Exception as e:
                     print(f"  ✗ Failed to drop {enum_name}: {e}")
             print("✓ Cleanup complete")
         elif has_version_table:
-            print("Alembic version table exists, proceeding with normal migration")
+            print("Alembic version table exists, skipping enum cleanup")
         else:
-            print("Database is clean, proceeding with normal migration")
+            print("No enum types found, database is clean")
 except Exception as e:
-    print(f"Error during cleanup check: {e}")
-    # Continue anyway
+    print(f"⚠ Cleanup error (continuing): {e}")
+    import traceback
+    traceback.print_exc()
 PYTHON_SCRIPT
 
 set -e  # Enable exit on error for migrations
