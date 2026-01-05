@@ -18,10 +18,10 @@ depends_on = None
 
 
 def upgrade() -> None:
-    res = op.get_bind().execute(text("SELECT 1 FROM pg_type WHERE typname = 'riskacceptancestatus'"))
-    if not res.first():
-        risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
-        risk_status.create(op.get_bind())
+    # res = op.get_bind().execute(text("SELECT 1 FROM pg_type WHERE typname = 'riskacceptancestatus'"))
+    # if not res.first():
+    #     risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
+    #     risk_status.create(op.get_bind())
     # Create risk_acceptances table
     op.create_table(
         'risk_acceptances',
