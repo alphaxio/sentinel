@@ -92,7 +92,8 @@ except Exception as e:
     traceback.print_exc()
 PYTHON_SCRIPT
 
-set -e  # Enable exit on error for migrations
+# Run migrations (exit on error)
+set -e
 if alembic upgrade head; then
     echo "✓ Migrations completed successfully"
 else
@@ -101,6 +102,7 @@ else
     alembic current || true
     exit 1
 fi
+set +e  # Disable exit on error for seeding (we want server to start even if seeding fails)
 
 # Seed initial data (roles and users)
 echo ""
@@ -108,17 +110,20 @@ echo "=========================================="
 echo "Seeding initial data..."
 echo "=========================================="
 cd /app || cd "$(dirname "$0")" || pwd
-if python3 scripts/seed_data.py; then
+if python3 scripts/seed_data.py 2>&1; then
     echo "✓ Seed data created successfully"
 else
     echo "⚠ Seed data creation failed (continuing anyway)"
+    # Don't exit - continue to start the server
 fi
 
-# Start the application
+# Start the application (always start, even if seeding failed)
 echo ""
 echo "=========================================="
 echo "Starting FastAPI application..."
 echo "=========================================="
+echo "CORS Origins: ${CORS_ORIGINS:-not set}"
 echo "Listening on 0.0.0.0:${PORT:-8000}"
+set -e  # Re-enable exit on error for server startup
 exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 
