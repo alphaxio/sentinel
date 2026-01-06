@@ -53,7 +53,7 @@ import type { Threat } from "@/types";
 const threatFormSchema = z.object({
   asset_id: z.string().min(1, "Asset is required"),
   title: z.string().min(1, "Title is required").max(255, "Title is too long"),
-  stride_category: z.enum(["Spoofing", "Tampering", "Repudiation", "Info_Disclosure", "DoS", "Elevation"]).optional(),
+  stride_category: z.enum(["SPOOFING", "TAMPERING", "REPUDIATION", "INFO_DISCLOSURE", "DOS", "ELEVATION"]).optional(),
   mitre_attack_id: z.string().optional(),
   likelihood_score: z.number().min(1).max(5),
   impact_score: z.number().min(1).max(5),
@@ -213,12 +213,12 @@ export function ThreatForm({ open, onOpenChange, threat, mode = "create", onSucc
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Spoofing">Spoofing</SelectItem>
-                        <SelectItem value="Tampering">Tampering</SelectItem>
-                        <SelectItem value="Repudiation">Repudiation</SelectItem>
-                        <SelectItem value="Info_Disclosure">Info Disclosure</SelectItem>
-                        <SelectItem value="DoS">DoS</SelectItem>
-                        <SelectItem value="Elevation">Elevation</SelectItem>
+                        <SelectItem value="SPOOFING">Spoofing</SelectItem>
+                        <SelectItem value="TAMPERING">Tampering</SelectItem>
+                        <SelectItem value="REPUDIATION">Repudiation</SelectItem>
+                        <SelectItem value="INFO_DISCLOSURE">Info Disclosure</SelectItem>
+                        <SelectItem value="DOS">DoS</SelectItem>
+                        <SelectItem value="ELEVATION">Elevation</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

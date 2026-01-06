@@ -58,7 +58,7 @@ export function PolicyForm({ open, onOpenChange, policy, onSuccess }: PolicyForm
     defaultValues: {
       name: "",
       description: "",
-      severity: "Medium",
+      severity: "MEDIUM",
       rego_snippet: "",
       active: true,
     },
@@ -77,7 +77,7 @@ export function PolicyForm({ open, onOpenChange, policy, onSuccess }: PolicyForm
       form.reset({
         name: "",
         description: "",
-        severity: "Medium",
+        severity: "MEDIUM",
         rego_snippet: "",
         active: true,
       });
@@ -176,11 +176,11 @@ export function PolicyForm({ open, onOpenChange, policy, onSuccess }: PolicyForm
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Info">Info</SelectItem>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                      <SelectItem value="Critical">Critical</SelectItem>
+                      <SelectItem value="INFO">Info</SelectItem>
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="MEDIUM">Medium</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                      <SelectItem value="CRITICAL">Critical</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

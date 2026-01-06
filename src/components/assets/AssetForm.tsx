@@ -38,16 +38,16 @@ import type { Asset } from "@/types";
 const assetFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(255, "Name is too long"),
   type: z.enum([
-    "Application",
-    "Microservice",
-    "Database",
-    "Container",
-    "Infrastructure",
-    "Server",
-    "Network",
-    "Cloud",
+    "APPLICATION",
+    "MICROSERVICE",
+    "DATABASE",
+    "CONTAINER",
+    "INFRASTRUCTURE",
+    "SERVER",
+    "NETWORK",
+    "CLOUD",
   ]),
-  classification_level: z.enum(["Public", "Internal", "Confidential", "Restricted"]),
+  classification_level: z.enum(["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]),
   confidentiality_score: z.number().min(1).max(5),
   integrity_score: z.number().min(1).max(5),
   availability_score: z.number().min(1).max(5),
@@ -72,8 +72,8 @@ export function AssetForm({ open, onOpenChange, asset, mode = "create" }: AssetF
     resolver: zodResolver(assetFormSchema),
     defaultValues: {
       name: asset?.name || "",
-      type: asset?.type || "Application",
-      classification_level: asset?.classification || "Internal",
+      type: asset?.type || "APPLICATION",
+      classification_level: asset?.classification || "INTERNAL",
       confidentiality_score: asset?.confidentiality || 3,
       integrity_score: asset?.integrity || 3,
       availability_score: asset?.availability || 3,
@@ -87,8 +87,8 @@ export function AssetForm({ open, onOpenChange, asset, mode = "create" }: AssetF
       if (asset && mode === "edit") {
         form.reset({
           name: asset.name || "",
-          type: asset.type || "Application",
-          classification_level: asset.classification || "Internal",
+          type: asset.type || "APPLICATION",
+          classification_level: asset.classification || "INTERNAL",
           confidentiality_score: asset.confidentiality || 3,
           integrity_score: asset.integrity || 3,
           availability_score: asset.availability || 3,
@@ -97,8 +97,8 @@ export function AssetForm({ open, onOpenChange, asset, mode = "create" }: AssetF
       } else if (mode === "create") {
         form.reset({
           name: "",
-          type: "Application",
-          classification_level: "Internal",
+          type: "APPLICATION",
+          classification_level: "INTERNAL",
           confidentiality_score: 3,
           integrity_score: 3,
           availability_score: 3,
@@ -196,14 +196,14 @@ export function AssetForm({ open, onOpenChange, asset, mode = "create" }: AssetF
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Application">Application</SelectItem>
-                        <SelectItem value="Microservice">Microservice</SelectItem>
-                        <SelectItem value="Database">Database</SelectItem>
-                        <SelectItem value="Container">Container</SelectItem>
-                        <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                        <SelectItem value="Server">Server</SelectItem>
-                        <SelectItem value="Network">Network</SelectItem>
-                        <SelectItem value="Cloud">Cloud</SelectItem>
+                        <SelectItem value="APPLICATION">Application</SelectItem>
+                        <SelectItem value="MICROSERVICE">Microservice</SelectItem>
+                        <SelectItem value="DATABASE">Database</SelectItem>
+                        <SelectItem value="CONTAINER">Container</SelectItem>
+                        <SelectItem value="INFRASTRUCTURE">Infrastructure</SelectItem>
+                        <SelectItem value="SERVER">Server</SelectItem>
+                        <SelectItem value="NETWORK">Network</SelectItem>
+                        <SelectItem value="CLOUD">Cloud</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -225,10 +225,10 @@ export function AssetForm({ open, onOpenChange, asset, mode = "create" }: AssetF
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Public">Public</SelectItem>
-                      <SelectItem value="Internal">Internal</SelectItem>
-                      <SelectItem value="Confidential">Confidential</SelectItem>
-                      <SelectItem value="Restricted">Restricted</SelectItem>
+                      <SelectItem value="PUBLIC">Public</SelectItem>
+                      <SelectItem value="INTERNAL">Internal</SelectItem>
+                      <SelectItem value="CONFIDENTIAL">Confidential</SelectItem>
+                      <SelectItem value="RESTRICTED">Restricted</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>

@@ -79,7 +79,7 @@ export function FindingForm({ open, onOpenChange, finding, mode = "create", onSu
     defaultValues: {
       asset_id: finding?.assetId || "",
       vulnerability_type: finding?.vulnerabilityType || finding?.title || "",
-      severity: finding?.severity || "Medium",
+      severity: finding?.severity || "MEDIUM",
       location: finding?.location || "",
       cve_id: finding?.cveId || "",
       source: finding?.source || "Manual",
@@ -210,11 +210,11 @@ export function FindingForm({ open, onOpenChange, finding, mode = "create", onSu
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Critical">Critical</SelectItem>
-                        <SelectItem value="High">High</SelectItem>
-                        <SelectItem value="Medium">Medium</SelectItem>
-                        <SelectItem value="Low">Low</SelectItem>
-                        <SelectItem value="Info">Info</SelectItem>
+                        <SelectItem value="CRITICAL">Critical</SelectItem>
+                        <SelectItem value="HIGH">High</SelectItem>
+                        <SelectItem value="MEDIUM">Medium</SelectItem>
+                        <SelectItem value="LOW">Low</SelectItem>
+                        <SelectItem value="INFO">Info</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
