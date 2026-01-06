@@ -126,13 +126,13 @@ export default function ThreatDetail() {
 
   const getNextValidStates = (currentStatus: string) => {
     const stateMachine: Record<string, string[]> = {
-      Identified: ["Assessed", "Verified"],
-      Assessed: ["Verified", "Evaluated"],
-      Verified: ["Evaluated", "Planning"],
-      Evaluated: ["Planning", "Mitigated", "Accepted"],
-      Planning: ["Mitigated"],
-      Mitigated: ["Monitoring"],
-      Accepted: ["Monitoring"],
+      IDENTIFIED: ["ASSESSED", "VERIFIED"],
+      ASSESSED: ["VERIFIED", "EVALUATED"],
+      VERIFIED: ["EVALUATED", "PLANNING"],
+      EVALUATED: ["PLANNING", "MITIGATED", "ACCEPTED"],
+      PLANNING: ["MITIGATED"],
+      MITIGATED: ["MONITORING"],
+      ACCEPTED: ["MONITORING"],
       Monitoring: ["Closed"],
     };
     return stateMachine[currentStatus] || [];

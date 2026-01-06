@@ -18,51 +18,62 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # res = op.get_bind().execute(text("SELECT 1 FROM pg_type WHERE typname = 'riskacceptancestatus'"))
-    # if not res.first():
-    #     risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
-    #     risk_status.create(op.get_bind())
-    # op.execute(text("DROP TYPE IF EXISTS riskacceptancestatus CASCADE"))
+    # Note: riskacceptancestatus enum type is already created in 001_initial_schema
+    # Use postgresql.ENUM with create_type=False to prevent SQLAlchemy from trying to create it
     
-    # # 2. Create the enum type manually
-    # risk_status = sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus')
-    # risk_status.create(op.get_bind())
-
-    status_enum = sa.Enum(
-        'Pending', 'Approved', 'Rejected', 'Expired',
-        name='riskacceptancestatus'
-    )
-    # Create risk_acceptances table
-    op.create_table(
-        'risk_acceptances',
-        sa.Column('acceptance_id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('threat_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('requested_by', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('approved_by', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('justification', sa.Text(), nullable=False),
-        sa.Column('acceptance_period_days', sa.Integer(), nullable=False),
-        sa.Column('expiration_date', sa.Date(), nullable=False),
+    # Check if table already exists (it might be created in 001_initial_schema)
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    table_exists = 'risk_acceptances' in inspector.get_table_names()
+    
+    if not table_exists:
+        # Create risk_acceptances table (if it doesn't exist from initial schema)
+        op.create_table(
+            'risk_acceptances',
+            sa.Column('acceptance_id', postgresql.UUID(as_uuid=True), primary_key=True),
+            sa.Column('threat_id', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('requested_by', postgresql.UUID(as_uuid=True), nullable=False),
+            sa.Column('approved_by', postgresql.UUID(as_uuid=True), nullable=True),
+            sa.Column('justification', sa.Text(), nullable=False),
+            sa.Column('acceptance_period_days', sa.Integer(), nullable=False),
+            sa.Column('expiration_date', sa.Date(), nullable=False),
         sa.Column(
             'status',
-            status_enum,
+            postgresql.ENUM('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', name='riskacceptancestatus', create_type=False),
             nullable=False,
-            server_default='Pending'
+            server_default='PENDING'
         ),
-        # sa.Column('status', sa.Enum('Pending', 'Approved', 'Rejected', 'Expired', name='riskacceptancestatus', create_type=False), nullable=False, server_default='Pending'),
-        sa.Column('approval_signature_name', sa.String(), nullable=True),
-        sa.Column('approval_signature_timestamp', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
-        sa.ForeignKeyConstraint(['threat_id'], ['threats.threat_id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['requested_by'], ['users.user_id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['approved_by'], ['users.user_id'], ondelete='SET NULL'),
-    )
+            sa.Column('approval_signature_name', sa.String(), nullable=True),
+            sa.Column('approval_signature_timestamp', sa.DateTime(timezone=True), nullable=True),
+            sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
+            sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()')),
+            sa.ForeignKeyConstraint(['threat_id'], ['threats.threat_id'], ondelete='CASCADE'),
+            sa.ForeignKeyConstraint(['requested_by'], ['users.user_id'], ondelete='CASCADE'),
+            sa.ForeignKeyConstraint(['approved_by'], ['users.user_id'], ondelete='SET NULL'),
+        )
     
-    # Create indexes
-    op.create_index('ix_risk_acceptances_threat_id', 'risk_acceptances', ['threat_id'])
-    op.create_index('ix_risk_acceptances_requested_by', 'risk_acceptances', ['requested_by'])
-    op.create_index('ix_risk_acceptances_status', 'risk_acceptances', ['status'])
-    op.create_index('ix_risk_acceptances_expiration_date', 'risk_acceptances', ['expiration_date'])
+    # Create indexes (create them even if table already exists, as initial schema doesn't create them)
+    existing_indexes = []
+    if table_exists:
+        try:
+            existing_indexes = [idx['name'] for idx in inspector.get_indexes('risk_acceptances')]
+        except Exception:
+            pass  # If we can't get indexes, just try to create them
+    
+    # Create indexes if they don't exist
+    index_definitions = [
+        ('ix_risk_acceptances_threat_id', ['threat_id']),
+        ('ix_risk_acceptances_requested_by', ['requested_by']),
+        ('ix_risk_acceptances_status', ['status']),
+        ('ix_risk_acceptances_expiration_date', ['expiration_date']),
+    ]
+    
+    for index_name, columns in index_definitions:
+        if index_name not in existing_indexes:
+            try:
+                op.create_index(index_name, 'risk_acceptances', columns)
+            except Exception:
+                pass  # Index might already exist, skip
 
 
 def downgrade() -> None:
@@ -75,5 +86,4 @@ def downgrade() -> None:
     # Drop table
     op.drop_table('risk_acceptances')
     
-    # Drop enum type
-    sa.Enum(name='riskacceptancestatus').drop(op.get_bind(), checkfirst=True)
+    # Note: Don't drop enum type here - it's created in 001_initial_schema and should be dropped there

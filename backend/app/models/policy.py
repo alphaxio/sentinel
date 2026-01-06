@@ -19,17 +19,17 @@ class ComplianceFramework(str, enum.Enum):
 
 
 class PolicySeverity(str, enum.Enum):
-    INFO = "Info"
-    LOW = "Low"
-    MEDIUM = "Medium"
-    HIGH = "High"
-    CRITICAL = "Critical"
+    INFO = "INFO"
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
 
 
 class GateDecision(str, enum.Enum):
-    PASS = "Pass"
-    WARN = "Warn"
-    BLOCK = "Block"
+    PASS = "PASS"
+    WARN = "WARN"
+    BLOCK = "BLOCK"
 
 
 class Control(Base):

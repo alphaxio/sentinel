@@ -36,7 +36,7 @@ import { toast } from "@/components/ui/sonner";
 const policyFormSchema = z.object({
   name: z.string().min(1, "Name is required").max(255, "Name is too long"),
   description: z.string().optional(),
-  severity: z.enum(["Info", "Low", "Medium", "High", "Critical"]),
+  severity: z.enum(["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"]),
   rego_snippet: z.string().optional(),
   active: z.boolean().default(true),
 });

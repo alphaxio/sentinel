@@ -72,12 +72,19 @@ export default function Findings() {
 
   const severityCounts = useMemo(() => {
     return {
-      Critical: findings.filter((f) => f.severity === "Critical").length,
-      High: findings.filter((f) => f.severity === "High").length,
-      Medium: findings.filter((f) => f.severity === "Medium").length,
-      Low: findings.filter((f) => f.severity === "Low").length,
+      CRITICAL: findings.filter((f) => f.severity === "CRITICAL").length,
+      HIGH: findings.filter((f) => f.severity === "HIGH").length,
+      MEDIUM: findings.filter((f) => f.severity === "MEDIUM").length,
+      LOW: findings.filter((f) => f.severity === "LOW").length,
     };
   }, [findings]);
+
+  const severityLabels: Record<string, string> = {
+    CRITICAL: "Critical",
+    HIGH: "High",
+    MEDIUM: "Medium",
+    LOW: "Low",
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -103,21 +110,21 @@ export default function Findings() {
             key={severity}
             className={cn(
               "p-4 rounded-xl border cursor-pointer transition-all hover:scale-[1.02]",
-              severity === "Critical" && "bg-critical/10 border-critical/30",
-              severity === "High" && "bg-high/10 border-high/30",
-              severity === "Medium" && "bg-medium/10 border-medium/30",
-              severity === "Low" && "bg-low/10 border-low/30"
+              severity === "CRITICAL" && "bg-critical/10 border-critical/30",
+              severity === "HIGH" && "bg-high/10 border-high/30",
+              severity === "MEDIUM" && "bg-medium/10 border-medium/30",
+              severity === "LOW" && "bg-low/10 border-low/30"
             )}
             onClick={() => setSeverityFilter(severity)}
           >
-            <p className="text-sm text-muted-foreground mb-1">{severity}</p>
+            <p className="text-sm text-muted-foreground mb-1">{severityLabels[severity] || severity}</p>
             <p
               className={cn(
                 "text-2xl font-bold",
-                severity === "Critical" && "text-critical",
-                severity === "High" && "text-high",
-                severity === "Medium" && "text-medium",
-                severity === "Low" && "text-low"
+                severity === "CRITICAL" && "text-critical",
+                severity === "HIGH" && "text-high",
+                severity === "MEDIUM" && "text-medium",
+                severity === "LOW" && "text-low"
               )}
             >
               {count}
@@ -144,11 +151,11 @@ export default function Findings() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Severity</SelectItem>
-            <SelectItem value="Critical">Critical</SelectItem>
-            <SelectItem value="High">High</SelectItem>
-            <SelectItem value="Medium">Medium</SelectItem>
-            <SelectItem value="Low">Low</SelectItem>
-            <SelectItem value="Info">Info</SelectItem>
+            <SelectItem value="CRITICAL">Critical</SelectItem>
+            <SelectItem value="HIGH">High</SelectItem>
+            <SelectItem value="MEDIUM">Medium</SelectItem>
+            <SelectItem value="LOW">Low</SelectItem>
+            <SelectItem value="INFO">Info</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sourceFilter} onValueChange={setSourceFilter}>

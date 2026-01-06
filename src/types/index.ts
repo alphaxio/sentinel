@@ -3,10 +3,10 @@
 export interface Asset {
   id: string;
   name: string;
-  type: 'Application' | 'Database' | 'Server' | 'Network' | 'Cloud' | 'Container' | 'Microservice' | 'Infrastructure';
+  type: 'APPLICATION' | 'DATABASE' | 'SERVER' | 'NETWORK' | 'CLOUD' | 'CONTAINER' | 'MICROSERVICE' | 'INFRASTRUCTURE';
   owner: string;
   ownerId?: string;
-  classification: 'Public' | 'Internal' | 'Confidential' | 'Restricted';
+  classification: 'PUBLIC' | 'INTERNAL' | 'CONFIDENTIAL' | 'RESTRICTED';
   confidentiality: number;
   integrity: number;
   availability: number;
@@ -26,13 +26,13 @@ export interface Threat {
   title: string;
   assetId: string;
   assetName: string;
-  strideCategory?: 'Spoofing' | 'Tampering' | 'Repudiation' | 'Info_Disclosure' | 'DoS' | 'Elevation';
+  strideCategory?: 'SPOOFING' | 'TAMPERING' | 'REPUDIATION' | 'INFO_DISCLOSURE' | 'DOS' | 'ELEVATION';
   mitreAttackId?: string;
   category: 'External' | 'Internal' | 'Physical' | 'Technical';
   likelihood: number;
   impact: number;
   riskScore: number;
-  status: 'Identified' | 'Assessed' | 'Verified' | 'Evaluated' | 'Planning' | 'Mitigated' | 'Accepted' | 'Monitoring';
+  status: 'IDENTIFIED' | 'ASSESSED' | 'VERIFIED' | 'EVALUATED' | 'PLANNING' | 'MITIGATED' | 'ACCEPTED' | 'MONITORING';
   mitigationPlan?: string;
   owner: string;
   ownerId?: string;
@@ -48,9 +48,9 @@ export interface Finding {
   assetName: string;
   threatId?: string;
   vulnerabilityType?: string;
-  severity: 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
   source: 'SonarQube' | 'OWASP ZAP' | 'Snyk' | 'Terraform' | 'Manual';
-  status: 'Open' | 'In Progress' | 'Resolved' | 'False Positive' | 'Accepted';
+  status: 'OPEN' | 'IN_PROGRESS' | 'REMEDIATED' | 'FALSE_POSITIVE' | 'ACCEPTED';
   cveId?: string;
   cvssScore?: number;
   description: string;
@@ -67,7 +67,7 @@ export interface Policy {
   name: string;
   description: string;
   framework: string;
-  severity: 'Info' | 'Low' | 'Medium' | 'High' | 'Critical';
+  severity: 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   regoSnippet?: string;
   status: 'Active' | 'Draft' | 'Archived';
   active: boolean;
@@ -103,7 +103,7 @@ export interface RiskAcceptance {
   justification: string;
   acceptancePeriodDays: number;
   expirationDate: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Expired';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
   approvalSignatureName?: string;
   approvalSignatureTimestamp?: string;
 }

@@ -37,7 +37,7 @@ import type { Finding } from "@/types";
 const findingFormSchema = z.object({
   asset_id: z.string().min(1, "Asset is required"),
   vulnerability_type: z.string().min(1, "Vulnerability type is required").max(255, "Type is too long"),
-  severity: z.enum(["Critical", "High", "Medium", "Low", "Info"]),
+  severity: z.enum(["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]),
   location: z.string().optional(),
   cve_id: z.string().optional(),
   source: z.enum(["SonarQube", "OWASP ZAP", "Snyk", "Terraform", "Manual"]),

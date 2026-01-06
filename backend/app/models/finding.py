@@ -14,30 +14,30 @@ class ScannerType(str, enum.Enum):
     SAST = "SAST"
     DAST = "DAST"
     SCA = "SCA"
-    IAC = "IaC"
+    IAC = "IAC"
 
 
 class ProcessingStatus(str, enum.Enum):
-    PENDING = "Pending"
-    PROCESSING = "Processing"
-    COMPLETED = "Completed"
-    FAILED = "Failed"
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
 
 class FindingSeverity(str, enum.Enum):
-    CRITICAL = "Critical"
-    HIGH = "High"
-    MEDIUM = "Medium"
-    LOW = "Low"
-    INFO = "Info"
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+    INFO = "INFO"
 
 
 class FindingStatus(str, enum.Enum):
-    OPEN = "Open"
-    IN_PROGRESS = "In_Progress"
-    REMEDIATED = "Remediated"
-    FALSE_POSITIVE = "False_Positive"
-    ACCEPTED = "Accepted"
+    OPEN = "OPEN"
+    IN_PROGRESS = "IN_PROGRESS"
+    REMEDIATED = "REMEDIATED"
+    FALSE_POSITIVE = "FALSE_POSITIVE"
+    ACCEPTED = "ACCEPTED"
 
 
 class ScanResult(Base):

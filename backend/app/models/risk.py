@@ -11,10 +11,10 @@ import enum
 
 
 class RiskAcceptanceStatus(str, enum.Enum):
-    PENDING = "Pending"
-    APPROVED = "Approved"
-    REJECTED = "Rejected"
-    EXPIRED = "Expired"
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
 
 
 class RiskAcceptance(Base):

@@ -12,7 +12,7 @@ export interface RiskAcceptance {
   justification: string;
   acceptance_period_days: number;
   expiration_date: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Expired';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
   approval_signature_name?: string;
   approval_signature_timestamp?: string;
   created_at: string;
@@ -33,7 +33,7 @@ export interface RiskAcceptanceCreate {
 export interface RiskAcceptanceUpdate {
   justification?: string;
   acceptance_period_days?: number;
-  status?: 'Pending' | 'Approved' | 'Rejected' | 'Expired';
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED';
 }
 
 export const riskAcceptancesService = {

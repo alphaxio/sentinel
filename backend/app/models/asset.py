@@ -11,27 +11,27 @@ import enum
 
 
 class AssetType(str, enum.Enum):
-    APPLICATION = "Application"
-    MICROSERVICE = "Microservice"
-    DATABASE = "Database"
-    CONTAINER = "Container"
-    INFRASTRUCTURE = "Infrastructure"
-    SERVER = "Server"
-    NETWORK = "Network"
-    CLOUD = "Cloud"
+    APPLICATION = "APPLICATION"
+    MICROSERVICE = "MICROSERVICE"
+    DATABASE = "DATABASE"
+    CONTAINER = "CONTAINER"
+    INFRASTRUCTURE = "INFRASTRUCTURE"
+    SERVER = "SERVER"
+    NETWORK = "NETWORK"
+    CLOUD = "CLOUD"
 
 
 class ClassificationLevel(str, enum.Enum):
-    PUBLIC = "Public"
-    INTERNAL = "Internal"
-    CONFIDENTIAL = "Confidential"
-    RESTRICTED = "Restricted"
+    PUBLIC = "PUBLIC"
+    INTERNAL = "INTERNAL"
+    CONFIDENTIAL = "CONFIDENTIAL"
+    RESTRICTED = "RESTRICTED"
 
 
 class RelationshipType(str, enum.Enum):
-    DEPENDS_ON = "depends_on"
-    COMMUNICATES_WITH = "communicates_with"
-    PROCESSES_DATA_FROM = "processes_data_from"
+    DEPENDS_ON = "DEPENDS_ON"
+    COMMUNICATES_WITH = "COMMUNICATES_WITH"
+    PROCESSES_DATA_FROM = "PROCESSES_DATA_FROM"
 
 
 class Asset(Base):

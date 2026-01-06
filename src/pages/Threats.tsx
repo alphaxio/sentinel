@@ -91,10 +91,10 @@ export default function Threats() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Identified", count: threats.filter((t) => t.status === "Identified").length, color: "text-info" },
-          { label: "Analyzing", count: threats.filter((t) => t.status === "Analyzing").length, color: "text-warning" },
-          { label: "Mitigating", count: threats.filter((t) => t.status === "Mitigating").length, color: "text-primary" },
-          { label: "Monitoring", count: threats.filter((t) => t.status === "Monitoring").length, color: "text-success" },
+          { label: "Identified", count: threats.filter((t) => t.status === "IDENTIFIED").length, color: "text-info" },
+          { label: "Assessed", count: threats.filter((t) => t.status === "ASSESSED").length, color: "text-warning" },
+          { label: "Mitigated", count: threats.filter((t) => t.status === "MITIGATED").length, color: "text-primary" },
+          { label: "Monitoring", count: threats.filter((t) => t.status === "MONITORING").length, color: "text-success" },
         ].map((stat) => (
           <div key={stat.label} className="p-4 rounded-xl bg-card border border-border">
             <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
@@ -121,11 +121,14 @@ export default function Threats() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="Identified">Identified</SelectItem>
-            <SelectItem value="Analyzing">Analyzing</SelectItem>
-            <SelectItem value="Mitigating">Mitigating</SelectItem>
-            <SelectItem value="Monitoring">Monitoring</SelectItem>
-            <SelectItem value="Closed">Closed</SelectItem>
+            <SelectItem value="IDENTIFIED">Identified</SelectItem>
+            <SelectItem value="ASSESSED">Assessed</SelectItem>
+            <SelectItem value="VERIFIED">Verified</SelectItem>
+            <SelectItem value="EVALUATED">Evaluated</SelectItem>
+            <SelectItem value="PLANNING">Planning</SelectItem>
+            <SelectItem value="MITIGATED">Mitigated</SelectItem>
+            <SelectItem value="ACCEPTED">Accepted</SelectItem>
+            <SelectItem value="MONITORING">Monitoring</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as "risk" | "date")}>

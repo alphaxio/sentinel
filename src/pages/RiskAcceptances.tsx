@@ -166,17 +166,17 @@ export default function RiskAcceptances() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, any> = {
-      Pending: { variant: "default" as const, icon: Clock, className: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-      Approved: { variant: "default" as const, icon: CheckCircle, className: "bg-green-500/20 text-green-400 border-green-500/30" },
-      Rejected: { variant: "destructive" as const, icon: XCircle, className: "bg-red-500/20 text-red-400 border-red-500/30" },
-      Expired: { variant: "secondary" as const, icon: AlertTriangle, className: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+      PENDING: { variant: "default" as const, icon: Clock, className: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", label: "Pending" },
+      APPROVED: { variant: "default" as const, icon: CheckCircle, className: "bg-green-500/20 text-green-400 border-green-500/30", label: "Approved" },
+      REJECTED: { variant: "destructive" as const, icon: XCircle, className: "bg-red-500/20 text-red-400 border-red-500/30", label: "Rejected" },
+      EXPIRED: { variant: "secondary" as const, icon: AlertTriangle, className: "bg-orange-500/20 text-orange-400 border-orange-500/30", label: "Expired" },
     };
-    const config = variants[status] || variants.Pending;
+    const config = variants[status] || variants.PENDING;
     const Icon = config.icon;
     return (
       <Badge variant="outline" className={config.className}>
         <Icon className="mr-1 h-3 w-3" />
-        {status}
+        {config.label || status}
       </Badge>
     );
   };
@@ -333,7 +333,7 @@ export default function RiskAcceptances() {
                     <TableCell>{getStatusBadge(acceptance.status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {acceptance.status === "Pending" && (
+                        {acceptance.status === "PENDING" && (
                           <>
                             <Button
                               size="sm"
@@ -353,7 +353,7 @@ export default function RiskAcceptances() {
                             </Button>
                           </>
                         )}
-                        {acceptance.status === "Approved" && acceptance.approver_name && (
+                        {acceptance.status === "APPROVED" && acceptance.approver_name && (
                           <p className="text-xs text-muted-foreground">
                             Approved by {acceptance.approver_name}
                           </p>

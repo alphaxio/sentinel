@@ -11,23 +11,23 @@ import enum
 
 
 class STRIDECategory(str, enum.Enum):
-    SPOOFING = "Spoofing"
-    TAMPERING = "Tampering"
-    REPUDIATION = "Repudiation"
-    INFO_DISCLOSURE = "Info_Disclosure"
-    DOS = "DoS"
-    ELEVATION = "Elevation"
+    SPOOFING = "SPOOFING"
+    TAMPERING = "TAMPERING"
+    REPUDIATION = "REPUDIATION"
+    INFO_DISCLOSURE = "INFO_DISCLOSURE"
+    DOS = "DOS"
+    ELEVATION = "ELEVATION"
 
 
 class ThreatStatus(str, enum.Enum):
-    IDENTIFIED = "Identified"
-    ASSESSED = "Assessed"
-    VERIFIED = "Verified"
-    EVALUATED = "Evaluated"
-    PLANNING = "Planning"
-    MITIGATED = "Mitigated"
-    ACCEPTED = "Accepted"
-    MONITORING = "Monitoring"
+    IDENTIFIED = "IDENTIFIED"
+    ASSESSED = "ASSESSED"
+    VERIFIED = "VERIFIED"
+    EVALUATED = "EVALUATED"
+    PLANNING = "PLANNING"
+    MITIGATED = "MITIGATED"
+    ACCEPTED = "ACCEPTED"
+    MONITORING = "MONITORING"
 
 
 class Threat(Base):
