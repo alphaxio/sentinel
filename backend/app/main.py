@@ -3,7 +3,34 @@ Sentinel IRM Platform - FastAPI Application Entry Point
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.core.config import settings
+from app.core.database import engine
+from sqlalchemy import text
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown events"""
+    # Startup
+    logger.info("Starting Sentinel IRM Platform API...")
+    try:
+        # Test database connection
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("✓ Database connection verified")
+    except Exception as e:
+        logger.error(f"✗ Database connection failed: {e}")
+        # Don't crash - let the app start anyway
+    
+    logger.info("✓ Application startup complete")
+    yield
+    # Shutdown
+    logger.info("Shutting down...")
+
 
 app = FastAPI(
     title="Sentinel IRM Platform API",
@@ -11,6 +38,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -40,5 +68,21 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint for Railway and load balancers"""
+    try:
+        # Quick database ping
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "version": "1.0.0"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "version": "1.0.0"
+        }, 503
 
