@@ -102,6 +102,18 @@ else
     exit 1
 fi
 
+# Seed initial data (roles and users)
+echo ""
+echo "=========================================="
+echo "Seeding initial data..."
+echo "=========================================="
+cd /app || cd "$(dirname "$0")" || pwd
+if python3 scripts/seed_data.py; then
+    echo "✓ Seed data created successfully"
+else
+    echo "⚠ Seed data creation failed (continuing anyway)"
+fi
+
 # Start the application
 echo ""
 echo "=========================================="
