@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Sentinel IRM Platform"
     DEBUG: bool = False
     
-    # Database (using local PostgreSQL via DBngin - default user is usually 'postgres')
+    # Database (Railway provides DATABASE_URL automatically)
     DATABASE_URL: str = "postgresql://postgres@localhost:5432/sentinel"
     
     # Redis

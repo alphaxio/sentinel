@@ -122,8 +122,34 @@ echo ""
 echo "=========================================="
 echo "Starting FastAPI application..."
 echo "=========================================="
-echo "CORS Origins: ${CORS_ORIGINS:-not set}"
-echo "Listening on 0.0.0.0:${PORT:-8000}"
+echo "Environment check:"
+echo "  PORT: ${PORT:-8000}"
+echo "  DATABASE_URL: ${DATABASE_URL:0:30}... (length: ${#DATABASE_URL})"
+echo "  CORS_ORIGINS: ${CORS_ORIGINS:-not set}"
+echo "  JWT_SECRET_KEY: ${JWT_SECRET_KEY:0:10}... (set: $([ -n "$JWT_SECRET_KEY" ] && echo 'yes' || echo 'no'))"
+echo ""
+
+# Test database connection before starting
+echo "Testing database connection..."
+python3 << 'PYTHON_SCRIPT'
+import sys
+import os
+sys.path.insert(0, '/app')
+try:
+    from app.core.database import engine
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT 1"))
+        print("✓ Database connection successful")
+except Exception as e:
+    print(f"✗ Database connection failed: {e}")
+    import traceback
+    traceback.print_exc()
+    # Don't exit - let the server try to start anyway
+PYTHON_SCRIPT
+
+echo ""
+echo "Starting server on 0.0.0.0:${PORT:-8000}..."
 set -e  # Re-enable exit on error for server startup
 exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 
