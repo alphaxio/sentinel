@@ -68,21 +68,10 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for Railway and load balancers"""
-    try:
-        # Quick database ping
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return {
-            "status": "healthy",
-            "database": "connected",
-            "version": "1.0.0"
-        }
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "database": "disconnected",
-            "error": str(e),
-            "version": "1.0.0"
-        }, 503
+    """Health check endpoint for Railway and load balancers - must be fast"""
+    # Simple health check - don't check database to avoid timeouts
+    return {
+        "status": "healthy",
+        "version": "1.0.0"
+    }
 

@@ -149,16 +149,27 @@ except Exception as e:
 PYTHON_SCRIPT
 
 echo ""
-echo "Starting server on 0.0.0.0:${PORT:-8000}..."
-echo "Server will be available at: http://0.0.0.0:${PORT:-8000}"
-echo "Health check: http://0.0.0.0:${PORT:-8000}/health"
+# Railway always sets PORT, but add safety check
+if [ -z "$PORT" ]; then
+    echo "ERROR: PORT environment variable is not set!"
+    echo "Railway should set this automatically. Using default 8000."
+    PORT=8000
+fi
+
+echo "Starting server on 0.0.0.0:${PORT}..."
+echo "Server will be available at: http://0.0.0.0:${PORT}"
+echo "Health check: http://0.0.0.0:${PORT}/health"
 set -e  # Re-enable exit on error for server startup
 
 # Use exec to replace shell process with uvicorn
 # This ensures Railway can properly manage the process
+# Note: Railway sets PORT dynamically, we must use it
+echo "Starting uvicorn on port ${PORT}..."
 exec uvicorn app.main:app \
     --host 0.0.0.0 \
-    --port ${PORT:-8000} \
+    --port ${PORT} \
     --workers 1 \
-    --log-level info
+    --log-level info \
+    --timeout-keep-alive 30 \
+    --access-log
 
