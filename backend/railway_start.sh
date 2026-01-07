@@ -164,12 +164,20 @@ set -e  # Re-enable exit on error for server startup
 # Use exec to replace shell process with uvicorn
 # This ensures Railway can properly manage the process
 # Note: Railway sets PORT dynamically, we must use it
-echo "Starting uvicorn on port ${PORT}..."
+echo "=========================================="
+echo "CRITICAL: Starting uvicorn server"
+echo "  Host: 0.0.0.0 (all interfaces)"
+echo "  Port: ${PORT}"
+echo "  This MUST match Railway's routing port"
+echo "=========================================="
+
+# Start server - Railway will route to this port
 exec uvicorn app.main:app \
     --host 0.0.0.0 \
     --port ${PORT} \
     --workers 1 \
-    --log-level info \
+    --log-level debug \
     --timeout-keep-alive 30 \
-    --access-log
+    --access-log \
+    --no-use-colors
 
