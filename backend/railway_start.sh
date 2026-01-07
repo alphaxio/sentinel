@@ -150,6 +150,15 @@ PYTHON_SCRIPT
 
 echo ""
 echo "Starting server on 0.0.0.0:${PORT:-8000}..."
+echo "Server will be available at: http://0.0.0.0:${PORT:-8000}"
+echo "Health check: http://0.0.0.0:${PORT:-8000}/health"
 set -e  # Re-enable exit on error for server startup
-exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+
+# Use exec to replace shell process with uvicorn
+# This ensures Railway can properly manage the process
+exec uvicorn app.main:app \
+    --host 0.0.0.0 \
+    --port ${PORT:-8000} \
+    --workers 1 \
+    --log-level info
 

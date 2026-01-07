@@ -21,7 +21,8 @@ RUN chmod +x railway_start.sh
 # Verify script is executable and in place
 RUN ls -la railway_start.sh || echo "WARNING: railway_start.sh not found"
 
-# Expose port (Railway will set PORT env var)
+# Expose port (Railway will set PORT env var dynamically)
+# We use $PORT from Railway, not a fixed port
 EXPOSE 8000
 
 # Default command - use bash to ensure proper execution
